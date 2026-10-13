@@ -1,0 +1,60 @@
+name: winboat
+volumes:
+  data:
+services:
+  windows:
+    image: ghcr.io/dockur/windows:6.05
+    container_name: WinBoat
+    environment:
+      VERSION: "11"
+      RAM_SIZE: 4G
+      CPU_CORES: "2"
+      DISK_SIZE: 32G
+      USERNAME: ${WINDOWS_USERNAME}
+      PASSWORD: ${WINDOWS_PASSWORD}
+      HOME: ${HOME}
+      LANGUAGE: Korean
+      USER_PORTS: "7148"
+      HOST_PORTS: "7149"
+      ARGUMENTS: -qmp tcp:0.0.0.0:7149,server,wait=off
+    cap_add:
+      - NET_ADMIN
+    privileged: true
+    ports:
+      - 127.0.0.1:47270-47279:8006
+      - 127.0.0.1:47280-47289:7148
+      - 127.0.0.1:47290-47299:7149
+      - 127.0.0.1:47300-47309:3389/tcp
+      - 127.0.0.1:47310-47319:3389/udp
+    stop_grace_period: 120s
+    restart: on-failure
+    volumes:
+      - ${HOME}/winboat:/storage
+      - ${HOME}:/shared
+      - /dev/bus/usb:/dev/bus/usb
+      - ./oem:/oem
+    devices:
+      - /dev/kvm
+  guacd:
+    image: guacamole/guacd:1.6.0
+    container_name: winboat-web-guacd
+    entrypoint: /opt/guacamole/sbin/guacd
+    command: ["-f", "-b", "0.0.0.0", "-l", "4822", "-p", "/tmp/guacd.pid"]
+    restart: on-failure
+  web:
+    image: winboat-web:latest
+    container_name: winboat-web
+    environment:
+      WINBOAT_USERNAME: ${WINDOWS_USERNAME}
+      WINBOAT_PASSWORD: ${WINDOWS_PASSWORD}
+      GUACD_ADDR: ${GUACD_ADDR}
+      RDP_HOST: ${RDP_HOST}
+      WINBOAT_HEALTH_URL: ${WINBOAT_HEALTH_URL}
+      WEB_PORT: ${WEB_PORT}
+      GUACD_INSTRUCTIONS: ${GUACD_INSTRUCTIONS}
+    ports:
+      - "127.0.0.1:${WEB_PORT}:8000"
+    depends_on:
+      - windows
+      - guacd
+    restart: on-failure

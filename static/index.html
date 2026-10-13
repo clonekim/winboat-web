@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KakaoTalk · WinBoat</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/static/guacamole.js"></script>
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <input type="hidden" id="token" value="{{.}}">
+  <header>
+    <strong>KakaoTalk</strong>
+    <span id="status" role="status">연결 준비</span>
+    <button id="connect">연결</button>
+    <button id="disconnect" disabled>연결 해제</button>
+  </header>
+  <main>
+    <div id="screen" tabindex="0" aria-label="카카오톡 원격 화면"></div>
+    <textarea id="keyboard-input" tabindex="-1" aria-label="원격 키보드 입력" autocomplete="off" autocapitalize="off" spellcheck="false" readonly></textarea>
+  </main>
+</body>
+</html>
